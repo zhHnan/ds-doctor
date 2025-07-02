@@ -1,0 +1,9 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: ds-doctor
+
+logging:
+  level:
+    root: info
