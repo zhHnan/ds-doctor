@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<HTML>
+    <HEAD>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <TITLE>事件流</TITLE>
+    </HEAD>
+    <BODY>
+        <H1>SSE 事件流</H1>
+        <div id="message"></div>
+    </BODY>
+</HTML>
+<script>
+    const messageDiv = document.getElementById("message");
+    let source = null;
+    // const userId = 1001; // 用户ID
+    let userId = Math.random().toString(36).substring(2,9);
+    function logMessage(message) {
+
+        messageDiv.innerHTML += `<br>${message}`;
+    }
+
+    if (window.EventSource) {
+        source = new EventSource(`http://127.0.0.1:8081/sse/connect?userId=${userId}`);
+
+        source.onopen = function (e) {
+            logMessage("建立连接成功！");
+        };
+
+        source.onmessage = function (event) {
+            console.log(event)
+            logMessage(`收到消息：${event.data}`);
+        };
+
+        source.onerror = function (e) {
+            if (source.readyState === EventSource.CLOSED) {
+                logMessage("连接关闭！");
+            } else {
+                logMessage("连接异常！");
+            }
+        };
+
+        // 监听自定义事件
+        source.addEventListener("add", function (e) {
+            logMessage(`新增！ ${e.data || ''}`);
+        });
+
+        source.addEventListener("custom", function (e) {
+            logMessage(`自定义新增！ ${e.data || ''}`);
+        });
+
+    } else {
+        logMessage("不支持事件流 (Server-Sent Events)");
+    }
+
+    function closeSSE() {
+        if (source) {
+            source.close();
+            logMessage("手动关闭连接。");
+        }
+    }
+</script>
